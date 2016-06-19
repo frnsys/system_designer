@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <title>schelling</title>
+
+    <style>
+        .background {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 0;
+            z-index: -1;
+            background: #ff0000;
+            background: -moz-linear-gradient(top,  #ff0000 0%, #ffe5e5 100%);
+            background: -webkit-linear-gradient(top,  #ff0000 0%,#ffe5e5 100%);
+            background: linear-gradient(to bottom,  #ff0000 0%,#ffe5e5 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff0000', endColorstr='#ffe5e5',GradientType=0 );
+        }
+        h1 {
+            font-family: sans-serif;
+            font-weight: normal;
+            text-align: center;
+            margin-bottom: 6em;
+        }
+        canvas {
+            margin: 8em auto 0 auto;
+            display: block;
+            box-shadow: 0px 0px 16px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background"></div>
+    <canvas id="grid-canvas" width="400" height="400"></canvas>
+    <h1>Schelling's Model of Segregation</h1>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
+    <script src="https://code.createjs.com/easeljs-0.8.2.min.js"></script>
+    <script>
+        var socket = io("/simulation"),
+            stage = new createjs.Stage("grid-canvas"),
+            w = 80,
+            h = 80,
+            cell_w = 400/w,
+            cell_h = 400/h,
+            colors = {
+                0: "#eaeaea",
+                1: "#FF1515",
+                2: "#FF2626",
+                3: "#E23131"
+            }
+
+        for (var i=0; i<h; i++) {
+            for (var j=0; j<w; j++) {
+                // these all might be reversed
+                var cell = new createjs.Shape();
+                cell.graphics.beginFill('#eaeaea').drawRect(i*cell_w, j*cell_h, cell_w, cell_h);
+                stage.addChild(cell);
+            }
+        }
+        stage.update();
+
+        socket.on("grid", function(data) {
+            stage.removeAllChildren();
+            for (var i=0; i<data.grid.length; i++) {
+                for (var j=0; j<data.grid[i].length; j++) {
+                    var cell = new createjs.Shape();
+                    cell.graphics.beginFill(colors[data.grid[i][j]]).drawRect(i*cell_w, j*cell_h, cell_w, cell_h);
+                    stage.addChild(cell);
+                }
+            }
+            stage.update();
+        });
+
+        console.log(socket); //????
+
+    </script>
+</body>
+</html>
+
+

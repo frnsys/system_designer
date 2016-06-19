@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <title>game of life</title>
+
+    <style>
+        .background {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 0;
+            z-index: -1;
+            background: #fffaa3;
+            background: -moz-linear-gradient(top, #fffaa3 0%, #ffd5c1 100%);
+            background: -webkit-linear-gradient(top, #fffaa3 0%, #ffd5c1 100%);
+            background: linear-gradient(to bottom, #fffaa3 0%, #ffd5c1 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fffaa3', endColorstr='#ffd5c1',GradientType=0 );
+        }
+        canvas {
+            margin: 6em auto;
+            display: block;
+            box-shadow: 4px 4px 6px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background"></div>
+    <canvas id="grid-canvas" width="500" height="500"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
+    <script src="https://code.createjs.com/easeljs-0.8.2.min.js"></script>
+    <script>
+        var socket = io("/simulation"),
+            stage = new createjs.Stage("grid-canvas"),
+            w = 20,
+            h = 20,
+            cell_w = 500/w,
+            cell_h = 500/h;
+
+        for (var i=0; i<h; i++) {
+            var row = [];
+            for (var j=0; j<w; j++) {
+                // these all might be reversed
+                var cell = new createjs.Shape();
+                cell.graphics.beginFill('#fff1e6').drawRect(i*cell_w, j*cell_h, cell_w, cell_h);
+                stage.addChild(cell);
+            }
+        }
+        stage.update();
+
+        socket.on("grid", function(data) {
+            stage.removeAllChildren();
+            for (var i=0; i<data.grid.length; i++) {
+                for (var j=0; j<data.grid[i].length; j++) {
+                    var cell = new createjs.Shape();
+                    cell.graphics.beginFill(data.grid[i][j] ? '#ffd1e6' : '#fff1e6').drawRect(i*cell_w, j*cell_h, cell_w, cell_h);
+                    stage.addChild(cell);
+                }
+            }
+            stage.update();
+        });
+        console.log(socket); //????
+
+    </script>
+</body>
+</html>
+
+
