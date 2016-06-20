@@ -14,6 +14,8 @@ Brood provides an easy way to emit arbitrary data, e.g. aggregate simulation rep
 
 ![Schelling](assets/schelling.gif)
 
+![SIR](assets/sir.gif)
+
 ## Goals
 
 - Provide a unified interface for single-node and multi-node simulations

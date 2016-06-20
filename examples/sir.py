@@ -1,3 +1,4 @@
+import time
 import brood
 import random
 import networkx as nx
@@ -9,36 +10,28 @@ recovery_rate = 0.01
 
 
 class SIRWorld(brood.World):
-    def init(self, state, pop_size, prob_friends):
+    def init(self, state, social_network):
         self.registry = {}
-        self.registry_rev = {}
-        self.social_network = nx.generators.gnp_random_graph(pop_size, prob_friends)
+        self.social_network = social_network
 
     @brood.expose
-    def register_agent(self, addr):
-        """register an agent with the world,
-        assigning them an id for the social network"""
-        if self.registry:
-            next = max(self.registry.values()) + 1
-        else:
-            next = 0
-        self.registry[addr] = next
-        self.registry_rev[next] = addr
+    def register_agent(self, id, addr):
+        """map agent ids to addresses"""
+        self.registry[id] = addr
 
     @brood.expose
-    def friends(self, addr):
+    def friends(self, id):
         """return friends of an agent"""
-        id = self.registry[addr]
-        return [self.registry_rev[id_] for id_ in self.social_network.neighbors(id)]
+        return [self.registry[id_] for id_ in self.social_network.neighbors(id)]
 
 
 class SIRAgent(brood.Agent):
-    state_vars = ['sick'] # 0 = healthy, 1 = sick, 2 = recovered
+    state_vars = ['id', 'sick'] # 0 = healthy, 1 = sick, 2 = recovered
 
     async def decide(self):
         # friends don't change, so cache them
         if not hasattr(self, 'friends'):
-            self.friends = await self.world.friends(self.addr)
+            self.friends = await self.world.friends(self.state.id)
 
         # only the actions of sick agents matter
         if self.state.sick == 1:
@@ -54,23 +47,59 @@ class SIRAgent(brood.Agent):
                             await friend_proxy.submit_var_update('sick', 1)
 
 
-def run(node, pop_size=500, sick_prob=0.2, prob_friends=0.3, n_steps=100):
+def color_for_status(status):
+    if status == 0:
+        return '#0066ff'
+    elif status == 1:
+        return '#ff0000'
+    elif status == 2:
+        return '#FFFD8A'
+
+
+
+def run(node, pop_size=150, sick_prob=0.1, prob_friends=0.02, n_steps=100):
     sim = brood.Simulation(node)
+    social_network = nx.generators.gnp_random_graph(pop_size, prob_friends)
+
     world, world_addr = sim.spawn(
         SIRWorld,
         state={},
-        pop_size=pop_size,
-        prob_friends=prob_friends)
+        social_network=social_network)
 
-    for i in range(pop_size):
+    # prep graph for sigma.js
+    graph_data = {'nodes': []}
+    for id in range(pop_size):
+        sick = int(random.random() < sick_prob)
         agent, addr = sim.spawn(
             SIRAgent,
-            state={'sick': random.random() < sick_prob},
+            state={'id': id, 'sick': sick},
             world_addr=world_addr)
-        brood.run(world.register_agent(addr))
+        graph_data['nodes'].append({
+            'id': id,
+            'size': 1,
+            'color': color_for_status(sick),
+            'x': random.random(),
+            'y': random.random()
+        })
+        brood.run(world.register_agent(id, addr))
+
+    socketio = brood.handlers.SocketIO()
+
+    graph_data['edges'] = [{
+        'id': 'e{}'.format(i),
+        'source': f,
+        'target': t,
+        'size': 1,
+        'color': '#222222'}
+        for i, (f, t) in enumerate(social_network.edges())]
+    socketio.emit('setup', graph_data)
 
     for report in sim.irun(n_steps, {
         'n_sick': (lambda ss: sum(1 for s in ss if hasattr(s, 'sick') and s.sick == 1), 1),
-        'n_recovered': (lambda ss: sum(1 for s in ss if hasattr(s, 'sick') and s.sick == 2), 1)
+        'n_recovered': (lambda ss: sum(1 for s in ss if hasattr(s, 'sick') and s.sick == 2), 1),
+        'colors': (lambda ss: {s.id : color_for_status(s.sick) for s in ss if hasattr(s, 'sick')}, 1)
     }):
+        socketio.emit('update', report['colors'])
+        del report['colors']
         print(report)
+        time.sleep(0.1)

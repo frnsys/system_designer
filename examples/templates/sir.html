@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <title>susceptible-infectious-recovered</title>
+
+    <style>
+        .background {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 0;
+            z-index: -1;
+            background: #445dff;
+            background: -moz-linear-gradient(top,  #445dff 0%, #f9fcff 100%);
+            background: -webkit-linear-gradient(top,  #445dff 0%,#f9fcff 100%);
+            background: linear-gradient(to bottom,  #445dff 0%,#f9fcff 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#445dff', endColorstr='#f9fcff',GradientType=0 );
+        }
+        #container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background"></div>
+    <div id="container"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sigma.js/1.1.0/sigma.min.js"></script>
+    <script>
+        var socket = io("/simulation"), s;
+        socket.on("setup", function(data) {
+            if (s !== undefined) {
+                // clear existing graph
+                s.graph.clear();
+                s.refresh();
+            }
+            s = new sigma({
+                renderers: [{
+                    type: 'webgl',
+                    container: 'container'
+                }],
+                graph: data
+            });
+        });
+        socket.on("update", function(data) {
+            var nodes = s.graph.nodes();
+            for (var i=0; i < nodes.length; i++) {
+                nodes[i].color = data[nodes[i].id];
+            }
+            s.refresh();
+        });
+        console.log(socket); //????
+
+    </script>
+</body>
+</html>
+
+
