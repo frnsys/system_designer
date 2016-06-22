@@ -14,6 +14,8 @@ Brood provides an easy way to emit arbitrary data, e.g. aggregate simulation rep
 
 ![Schelling](assets/schelling.gif)
 
+![Schelling 3D](assets/schelling3d.gif)
+
 ![SIR](assets/sir.gif)
 
 ## Goals
