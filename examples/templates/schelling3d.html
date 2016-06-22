@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <title>schelling</title>
+
+    <style>
+        .background {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 0;
+            z-index: -1;
+            background: #ff0000;
+            background: -moz-linear-gradient(top,  #ff0000 0%, #ffe5e5 100%);
+            background: -webkit-linear-gradient(top,  #ff0000 0%,#ffe5e5 100%);
+            background: linear-gradient(to bottom,  #ff0000 0%,#ffe5e5 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff0000', endColorstr='#ffe5e5',GradientType=0 );
+        }
+        h1 {
+            font-family: sans-serif;
+            font-weight: normal;
+            text-align: center;
+            margin-bottom: 6em;
+        }
+        canvas {
+            margin: 0 auto;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background"></div>
+    <canvas id="stage" width="1260" height="700"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r74/three.min.js"></script>
+    <script>
+        var socket = io("/simulation"),
+            colors = {
+                0: 0xeaeaea,
+                1: 0xFF1515,
+                2: 0x0066ff,
+                3: 0xE23131
+            };
+
+        var Grid = function(width, height, depth, voxelSize, margin, scene) {
+            var voxelSpace = voxelSize + margin;
+            this.grid = [];
+            for (var i=0; i < width; i++) {
+                var row = [];
+                for (var j=0; j<height; j++) {
+                    var col = [];
+                    for (var k=0; k<depth; k++) {
+                        var voxel = new Voxel(i*voxelSpace, j*voxelSpace, k*voxelSpace, voxelSize, 0xff2222);
+                        scene.scene.add(voxel.mesh);
+                        col.push(voxel); // TODO transparency?
+                    }
+                    row.push(col);
+                }
+                this.grid.push(row);
+            }
+        };
+
+        var materials = {
+            0: new THREE.MeshLambertMaterial({
+                color: colors[0],
+                opacity: 0.0,
+                transparent: true
+            }),
+            1: new THREE.MeshLambertMaterial({
+                color: colors[1]
+            }),
+            2: new THREE.MeshLambertMaterial({
+                color: colors[2]
+            }),
+            3: new THREE.MeshLambertMaterial({
+                color: colors[3]
+            })
+        };
+
+        var Voxel = function(x, y, z, voxelSize, color) {
+            this.color = color;
+            this.geometry = new THREE.BoxGeometry(voxelSize, voxelSize, voxelSize);
+            this.mesh = new THREE.Mesh(this.geometry, materials[0]);
+            this.mesh.position.set(x, y, z);
+        };
+        Voxel.prototype = {
+            setType: function(type) {
+                this.mesh.material = materials[type];
+            }
+        };
+
+        var fps = 30;
+        var Scene = function() {
+            var width = 1260,
+                height = 700,
+                aspect = width/height,
+                D = 1,
+                light = new THREE.PointLight(0xffffff, 1, 40);
+
+            this.scene = new THREE.Scene();
+            this.renderer = new THREE.WebGLRenderer({alpha: true, canvas: document.getElementById("stage")});
+            this.camera = new THREE.OrthographicCamera(-D*aspect, D*aspect, D, -D, 1, 1000),
+
+            this.renderer.setSize(width, height);
+            this.renderer.setClearColor(0xffffff, 0);
+            this.scene.add( new THREE.AmbientLight(0x4000ff) );
+
+            light.position.set(15, 20, 15);
+            this.scene.add(light);
+
+            light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1);
+            this.scene.add(light);
+
+            this.camera.zoom = 0.1;
+            this.camera.position.set(20, 20, 20);
+            this.camera.lookAt(this.scene.position);
+            this.camera.updateProjectionMatrix();
+        };
+
+        Scene.prototype = {
+          render: function() {
+              this.renderer.render(this.scene, this.camera);
+          }
+        };
+
+        var scene = new Scene();
+        var grid = new Grid(12, 12, 12, 0.4, 0.2, scene);
+        scene.render();
+
+        socket.on("grid", function(data) {
+            for (var i=0; i<data.grid.length; i++) {
+                for (var j=0; j<data.grid[i].length; j++) {
+                    for (var k=0; k<data.grid[i][j].length; k++) {
+                        grid.grid[i][j][k].setType(data.grid[i][j][k]);
+                    }
+                }
+            }
+            scene.render();
+        });
+
+        console.log(socket); //????
+
+
+
+    </script>
+</body>
+</html>
+
+

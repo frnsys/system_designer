@@ -1,3 +1,4 @@
+import time
 import brood
 import random
 import numpy as np
@@ -43,20 +44,35 @@ class SchellingWorld(brood.world.GridWorld):
         return state
 
 
-def run(node, n_agents=5000, n_types=3, width=80, height=80, n_steps=400, threshold=0.6):
-    assert n_agents < width * height
+class SchellingVoxelWorld(brood.world.VoxelWorld, SchellingWorld):
+    def move_agent(self, position, new_pos, value, state):
+        x, y, z = position
+        nx, ny, nz = new_pos
+        state.grid[x, y, z] = 0
+        state.grid[nx, ny, nz] = value
+        return state
+
+
+def run(node, n_agents=5000, n_types=3, width=80, height=80, depth=None, n_steps=400, threshold=0.6, wraps=False):
+    if depth is None:
+        assert n_agents < width * height
+        grid = np.zeros((width, height))
+        positions = list(product(range(width), range(height)))
+        world_cls = SchellingWorld
+    else:
+        assert n_agents < width * height * depth
+        grid = np.zeros((width, height, depth))
+        positions = list(product(range(width), range(height), range(depth)))
+        world_cls = SchellingVoxelWorld
 
     # value of 0 is reserved for empty positions
     types = [i+1 for i in range(n_types)]
 
-    grid = np.zeros((width, height))
-    positions = list(product(range(width), range(height)))
-
     sim = brood.Simulation(node)
     world, world_addr = sim.spawn(
-        SchellingWorld,
+        world_cls,
         state={'grid': grid, 'vacancies': []},
-        wraps=False)
+        wraps=wraps)
 
     socketio = brood.handlers.SocketIO()
     for _ in range(n_agents):
@@ -76,3 +92,4 @@ def run(node, n_agents=5000, n_types=3, width=80, height=80, n_steps=400, thresh
         print('mean satisfaction:', report['total_satisfaction']/n_agents)
         grid = brood.run(world.get('grid'))
         socketio.emit('grid', {'grid':grid.tolist()})
+        time.sleep(0.2)
