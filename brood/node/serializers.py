@@ -1,5 +1,4 @@
 import numpy as np
-from brood.agent import State
 
 
 # from: <https://aiomas.readthedocs.io/en/latest/guides/codecs.html>
@@ -20,15 +19,3 @@ def _serialize_ndarray(obj):
 def _deserialize_ndarray(obj):
    array = np.fromstring(obj['data'], dtype=np.dtype(obj['type']))
    return array.reshape(obj['shape'])
-
-
-def get_state_serializer():
-    return State, _serialize_state, _deserialize_state
-
-
-def _serialize_state(obj):
-    return obj.__dict__
-
-
-def _deserialize_state(obj):
-    return State(**obj)
