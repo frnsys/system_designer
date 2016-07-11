@@ -1,29 +1,40 @@
 import aiomas
 from functools import partial
+from recordclass import recordclass
 
 
-def update_var(var, value, state):
-    setattr(state, var, value)
-    return state
+class AgentMeta(type):
+    """metaclass for the Agent based class
+    which defines the agent state
+    and validates its behaviors"""
+    def __new__(cls, name, parents, dct):
+        state_vars = dct.get('state_vars', [])
+        behaviors = dct.get('behaviors', [])
+
+        dct['State'] = recordclass('{}State'.format(name), state_vars)
+
+        # extract vars required by behaviors
+        # can handle partials as well
+        all_required_vars = set(sum((
+            b.required_vars if not isinstance(b, partial)
+            else b.func.required_vars
+            for b in behaviors
+        ), []))
+
+        missing = [var for var in all_required_vars
+                   if var not in state_vars]
+        if missing:
+            raise MissingVarError('required vars {} are missing in agent `state_vars`'.format(missing))
+        return type.__new__(cls, name, parents, dct)
 
 
-class State():
-    def __init__(self, **kwargs):
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-
-    def __eq__(self, other):
-        return self.__dict__ == other.__dict__
-
-
-class Agent(aiomas.Agent):
+class Agent(aiomas.Agent, metaclass=AgentMeta):
     state_vars = []
+    behaviors = []
 
     def __init__(self, container, state, *args, world_addr=None, **kwargs):
         super().__init__(container)
-        for key in self.state_vars:
-            assert key in state
-        self.state = State(**state)
+        self.state = self.State(**state)
         self.world_addr = world_addr
         self._updates = []
         self.init(state, *args, **kwargs)
@@ -40,7 +51,7 @@ class Agent(aiomas.Agent):
     @aiomas.expose
     def get(self, var):
         """get a state variable value"""
-        return self.state.__dict__[var]
+        return getattr(self.state, var)
 
     @aiomas.expose
     def get_state(self):
@@ -50,8 +61,11 @@ class Agent(aiomas.Agent):
     async def decide(self):
         """agent observes and decides.
         the agent should not actually execute any
-        updates here (to avoid collisions/ordering issues)"""
-        pass
+        updates here (to avoid collisions/ordering issues).
+        if this is overridden, you should call `super().decide()`
+        to execute attached behaviors"""
+        for behavior in self.behaviors:
+            behavior(self)
 
     async def setup(self):
         """any setup the agent needs at simulation startup,
@@ -82,3 +96,12 @@ class Agent(aiomas.Agent):
             state = fn(state)
         self.state = state
         self._updates = []
+
+
+def update_var(var, value, state):
+    setattr(state, var, value)
+    return state
+
+
+class MissingVarError(Exception):
+    pass

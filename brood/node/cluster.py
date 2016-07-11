@@ -2,7 +2,7 @@ import re
 import aiomas
 import asyncio
 import paramiko
-from .serializers import get_np_serializer, get_state_serializer
+from .serializers import get_np_serializer
 from ..distributors import RoundRobin
 
 
@@ -25,9 +25,7 @@ class Cluster:
                          for host, user, start_port in hosts), [])
         self._container = aiomas.Container.create(('localhost', port),
                                                   codec=aiomas.codecs.MsgPackBlosc,
-                                                  extra_serializers=[
-                                                      get_np_serializer,
-                                                      get_state_serializer])
+                                                  extra_serializers=[get_np_serializer])
         self._container.has_manager = True
         self._managers = aiomas.run(self._connect_to_managers(self.hosts))
         self._distributor = distributor(self._managers)

@@ -83,9 +83,7 @@ def start_node(port):
     """start a node"""
     task = Node.start(('0.0.0.0', port),
                       codec=aiomas.codecs.MsgPackBlosc,
-                      extra_serializers=[
-                          serializers.get_np_serializer,
-                          serializers.get_state_serializer])
+                      extra_serializers=[serializers.get_np_serializer])
 
     # terminates when the node's manager is given the 'stop' command
     aiomas.run(until=task)
