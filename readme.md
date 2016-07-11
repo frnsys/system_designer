@@ -99,6 +99,7 @@ So an example use for the multi-node case is if you have many agents which "thin
     - Distributed log handling (via Redis pub sub? this can also support a more general event system)
 - Add new nodes during simulation
 - Node fault tolerance/replication
+    - (optional) snapshotting of agent states, associated with node addresses, every n steps, to redis (or some similar distributed key-value store)
 
 Parallelization/distributed computing: agents are expected to be entirely independent in their execution _with the exception of_ their `decide` method.
 
