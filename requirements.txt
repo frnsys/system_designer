@@ -6,3 +6,4 @@ Flask-SocketIO==2.2
 aiomas==1.0.3
 recordclass==0.4.1
 paramiko==2.0.2
+daemonize==2.4.7
