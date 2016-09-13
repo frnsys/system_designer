@@ -1,4 +1,4 @@
-import brood
+import syd
 from unittest import mock
 
 
@@ -8,17 +8,17 @@ def mock_coro():
     return mock.Mock(wraps=_mock_coro)
 
 
-class SimpleAgent(brood.Agent):
+class SimpleAgent(syd.Agent):
     state_vars = ['sup', 'huh']
 
     def init(self, *args, **kwargs):
         self._counter = 0
 
-    @brood.expose
+    @syd.expose
     def what(self):
         return 'what'
 
-    @brood.expose
+    @syd.expose
     def counter(self):
         return self._counter
 

@@ -1,8 +1,8 @@
 import aiomas
 import unittest
 from unittest import mock
-from brood.node import Node
-from brood.node.proxy import LocalProxy
+from syd.node import Node
+from syd.node.proxy import LocalProxy
 from . import SimpleAgent, mock_coro
 
 

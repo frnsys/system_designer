@@ -16,7 +16,7 @@ class Node(aiomas.Container):
 
         # prepare logging for each node
         _, port = addr[:-1].rsplit(':', 1)
-        handler = logging.FileHandler('/tmp/broodling_{}.log'.format(port))
+        handler = logging.FileHandler('/tmp/sydling_{}.log'.format(port))
         handler.setLevel(logging.DEBUG)
         self.logger = logging.getLogger(__name__)
         self.logger.addHandler(handler)

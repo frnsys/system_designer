@@ -1,5 +1,5 @@
+import syd
 import time
-import brood
 import random
 import numpy as np
 from functools import partial
@@ -14,7 +14,7 @@ def live(pos, state):
     return state
 
 
-class GOLAgent(brood.Agent):
+class GOLAgent(syd.Agent):
     state_vars = ['alive', 'position']
 
     async def decide(self):
@@ -35,9 +35,9 @@ class GOLAgent(brood.Agent):
 
 
 def run(node, width=20, height=20, steps=100, alive_prob=0.3):
-    sim = brood.Simulation(node)
+    sim = syd.Simulation(node)
     grid = np.zeros((width, height), dtype=bool)
-    world, world_addr = sim.spawn(brood.world.GridWorld,
+    world, world_addr = sim.spawn(syd.world.GridWorld,
                                   state={'grid': grid},
                                   wraps=False)
 
@@ -49,13 +49,13 @@ def run(node, width=20, height=20, steps=100, alive_prob=0.3):
                 'alive': alive,
                 'position': position
             }, world_addr=world_addr)
-            brood.run(world.set_position(alive, position))
+            syd.run(world.set_position(alive, position))
 
-    socketio = brood.handlers.SocketIO()
+    socketio = syd.handlers.SocketIO()
     for report in sim.irun(steps, {
         'n_alive': (lambda ss: sum(1 for s in ss if hasattr(s, 'alive') and s.alive), 1)
     }):
         print(report)
-        grid = brood.run(world.get('grid'))
+        grid = syd.run(world.get('grid'))
         socketio.emit('grid', {'grid':grid.tolist()})
         time.sleep(0.25)

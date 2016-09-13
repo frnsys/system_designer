@@ -56,7 +56,7 @@ def nodes(start_port, cores, daemonize):
     if daemonize:
         def action():
             start_nodes(start_port, cores)
-        daemon = Daemonize(app='brood', pid='/tmp/brood.pid', action=action)
+        daemon = Daemonize(app='syd', pid='/tmp/syd.pid', action=action)
         daemon.start()
     else:
         start_nodes(start_port, cores)

@@ -4,10 +4,10 @@ with open('requirements.txt') as f:
     required = f.read().splitlines()
 
 setup(
-    name='brood',
+    name='syd',
     version='0.0.1',
     description='a distributed agent-based simulation framework',
-    url='https://github.com/frnsys/brood',
+    url='https://github.com/frnsys/system_designer',
     author='Francis Tseng (@frnsys)',
     author_email='f@frnsys.com',
     license='MIT',
@@ -17,6 +17,6 @@ setup(
     test_suite='nose.collector',
     entry_points='''
         [console_scripts]
-        brood=brood.cli:cli
+        syd=syd.cli:cli
     '''
 )

@@ -1,5 +1,5 @@
+import syd
 import time
-import brood
 import random
 import networkx as nx
 
@@ -9,23 +9,23 @@ transmission_rate = 0.3
 recovery_rate = 0.01
 
 
-class SIRWorld(brood.World):
+class SIRWorld(syd.World):
     def init(self, state, social_network):
         self.registry = {}
         self.social_network = social_network
 
-    @brood.expose
+    @syd.expose
     def register_agent(self, id, addr):
         """map agent ids to addresses"""
         self.registry[id] = addr
 
-    @brood.expose
+    @syd.expose
     def friends(self, id):
         """return friends of an agent"""
         return [self.registry[id_] for id_ in self.social_network.neighbors(id)]
 
 
-class SIRAgent(brood.Agent):
+class SIRAgent(syd.Agent):
     state_vars = ['id', 'sick'] # 0 = healthy, 1 = sick, 2 = recovered
 
     async def decide(self):
@@ -58,7 +58,7 @@ def color_for_status(status):
 
 
 def run(node, pop_size=150, sick_prob=0.1, prob_friends=0.02, n_steps=100):
-    sim = brood.Simulation(node)
+    sim = syd.Simulation(node)
     social_network = nx.generators.gnp_random_graph(pop_size, prob_friends)
 
     world, world_addr = sim.spawn(
@@ -81,9 +81,9 @@ def run(node, pop_size=150, sick_prob=0.1, prob_friends=0.02, n_steps=100):
             'x': random.random(),
             'y': random.random()
         })
-        brood.run(world.register_agent(id, addr))
+        syd.run(world.register_agent(id, addr))
 
-    socketio = brood.handlers.SocketIO()
+    socketio = syd.handlers.SocketIO()
 
     graph_data['edges'] = [{
         'id': 'e{}'.format(i),

@@ -1,18 +1,18 @@
-import brood
+import syd
 import aiomas
 import unittest
-from brood.node import Node
+from syd.node import Node
 from functools import partial
-from brood.agent.base import MissingVarError
+from syd.agent.base import MissingVarError
 from . import SimpleAgent
 
 
-@brood.behavior('cash')
+@syd.behavior('cash')
 def behavior(agent):
     agent.submit_var_update('cash', 10)
 
 
-@brood.behavior('cash')
+@syd.behavior('cash')
 def behavior_with_params(agent, param):
     def update(state):
         state.cash *= param
@@ -59,7 +59,7 @@ class AgentTests(unittest.TestCase):
 
     def test_behavior_missing_required_vars(self):
         def create_agent_class():
-            class NewAgent(brood.Agent):
+            class NewAgent(syd.Agent):
                 state_vars = ['bleh']
                 behaviors = [behavior]
             return NewAgent
@@ -67,14 +67,14 @@ class AgentTests(unittest.TestCase):
 
     def test_behavior_with_required_vars(self):
         try:
-            class NewAgent(brood.Agent):
+            class NewAgent(syd.Agent):
                 state_vars = ['cash']
                 behaviors = [behavior]
         except MissingVarError:
             self.fail('should not have raised MissingVarError')
 
     def test_behaviors_called(self):
-        class NewAgent(brood.Agent):
+        class NewAgent(syd.Agent):
             state_vars = ['cash']
             behaviors = [behavior]
 
@@ -86,7 +86,7 @@ class AgentTests(unittest.TestCase):
         self.assertEquals(agent.state.cash, 10)
 
     def test_behaviors_with_param_called(self):
-        class NewAgent(brood.Agent):
+        class NewAgent(syd.Agent):
             state_vars = ['cash']
             behaviors = [partial(behavior_with_params, param=2)]
 
@@ -98,7 +98,7 @@ class AgentTests(unittest.TestCase):
         self.assertEquals(agent.state.cash, 200)
 
     def test_multiple_behaviors_called(self):
-        class NewAgent(brood.Agent):
+        class NewAgent(syd.Agent):
             state_vars = ['cash']
             behaviors = [behavior,
                          partial(behavior_with_params, param=2)]

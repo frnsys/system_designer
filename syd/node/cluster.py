@@ -36,14 +36,14 @@ class Cluster:
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         client.connect(host, username=user)
 
-        cmd = 'brood nodes {} --daemonize'.format(start_port)
+        cmd = 'syd nodes {} --daemonize'.format(start_port)
         if venv is not None:
             cmd = 'source {}/bin/activate; {}'.format(venv, cmd)
         stdin, stdout, stderr = client.exec_command(cmd)
 
         # assume command failed if stderr is not empty
         if stderr.read():
-            raise NodeException('Unable to execute `brood nodes` on host "{}". Is it configured?'.format(host))
+            raise NodeException('Unable to execute `syd nodes` on host "{}". Is it configured?'.format(host))
 
         # get number of nodes created (hacky)
         output = stdout.read().decode('utf-8')

@@ -1,7 +1,7 @@
 import aiomas
 import unittest
-from brood.node import Node
-from brood.simulation import Simulation
+from syd.node import Node
+from syd.simulation import Simulation
 from . import SimpleAgent
 
 

@@ -1,12 +1,12 @@
+import syd
 import time
-import brood
 import random
 import numpy as np
 from itertools import product
 from functools import partial
 
 
-class SchellingAgent(brood.Agent):
+class SchellingAgent(syd.Agent):
     state_vars = ['type', 'position', 'satisfaction', 'threshold']
 
     async def decide(self):
@@ -18,13 +18,13 @@ class SchellingAgent(brood.Agent):
             await self.world.queue_random_move(self.state.position, self.state.type, self.addr)
 
 
-class SchellingWorld(brood.world.GridWorld):
+class SchellingWorld(syd.world.GridWorld):
     state_vars = ['grid', 'vacancies']
 
     async def decide(self):
         self.submit_update(self.update_vacancies)
 
-    @brood.expose
+    @syd.expose
     async def queue_random_move(self, position, agent_type, agent_addr):
         if self.state.vacancies:
             new_pos = self.state.vacancies.pop(random.randrange(len(self.state.vacancies)))
@@ -44,7 +44,7 @@ class SchellingWorld(brood.world.GridWorld):
         return state
 
 
-class SchellingVoxelWorld(brood.world.VoxelWorld, SchellingWorld):
+class SchellingVoxelWorld(syd.world.VoxelWorld, SchellingWorld):
     def move_agent(self, position, new_pos, value, state):
         x, y, z = position
         nx, ny, nz = new_pos
@@ -68,13 +68,13 @@ def run(node, n_agents=5000, n_types=3, width=80, height=80, depth=None, n_steps
     # value of 0 is reserved for empty positions
     types = [i+1 for i in range(n_types)]
 
-    sim = brood.Simulation(node)
+    sim = syd.Simulation(node)
     world, world_addr = sim.spawn(
         world_cls,
         state={'grid': grid, 'vacancies': []},
         wraps=wraps)
 
-    socketio = brood.handlers.SocketIO()
+    socketio = syd.handlers.SocketIO()
     for _ in range(n_agents):
         position = positions.pop(random.randrange(len(positions)))
         type = random.choice(types)
@@ -84,12 +84,12 @@ def run(node, n_agents=5000, n_types=3, width=80, height=80, depth=None, n_steps
             'satisfaction': 0.,
             'threshold': threshold
         }, world_addr=world_addr)
-        brood.run(world.set_position(type, position))
+        syd.run(world.set_position(type, position))
 
     for report in sim.irun(n_steps, {
         'total_satisfaction': (lambda ss: sum(s.satisfaction for s in ss if hasattr(s, 'satisfaction')), 1)
     }):
         print('mean satisfaction:', report['total_satisfaction']/n_agents)
-        grid = brood.run(world.get('grid'))
+        grid = syd.run(world.get('grid'))
         socketio.emit('grid', {'grid':grid.tolist()})
         time.sleep(0.2)

@@ -1,6 +1,6 @@
+import syd
 import sys
 import time
-import brood
 import examples
 
 
@@ -16,11 +16,11 @@ if __name__ == '__main__':
         sys.exit(0)
 
     try:
-        node = brood.Node.create(('localhost', 5001))
-        # node = brood.Cluster(
+        node = syd.Node.create(('localhost', 5001))
+        # node = syd.Cluster(
             # 8000,
             # [('localhost', 'ftseng', 5001)],
-            # venv='/home/ftseng/env/brood')
+            # venv='/home/ftseng/env/syd')
 
         s = time.time()
         getattr(examples, example).run(node)

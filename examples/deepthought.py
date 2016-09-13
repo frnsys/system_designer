@@ -1,8 +1,8 @@
+import syd
 import time
-import brood
 
 
-class DeepThoughtAgent(brood.Agent):
+class DeepThoughtAgent(syd.Agent):
     state_vars = ['thinking_time', 'friends']
 
     async def decide(self):
@@ -12,12 +12,12 @@ class DeepThoughtAgent(brood.Agent):
         time.sleep(self.state.thinking_time)
 
 
-class DeepThoughtWorld(brood.world.World):
+class DeepThoughtWorld(syd.world.World):
     state_vars = ['whatev']
 
 
 def run(node, n_agents=1000, steps=10, thinking_time=0.01, friends=10):
-    sim = brood.Simulation(node)
+    sim = syd.Simulation(node)
     world, world_addr = sim.spawn(
         DeepThoughtWorld,
         state={'whatev': 0},
