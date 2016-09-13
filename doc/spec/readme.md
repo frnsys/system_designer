@@ -8,13 +8,13 @@ If someone is interested, they can "zoom" into the black-box and see what it's c
 
 With this kind of module isolation, they can be exported for other models as well.
 
-[> Details]('modularity.md')
+[> Details](modularity.md)
 
 ## Multiscale
 
 Multiscale modeling could be supported, i.e. so that at a certain "distance" away from certain modules (e.g. n levels higher in abstraction or actual spatial distance for spatial models), the details of those models aren't processed but rather a simpler version are run. Related terms are "level-of-detail" (e.g. in video games, when you are far from an object only low-level textures are loaded), "culling", and "coarse-grained modeling".
 
-[> Details]('multiscale.md')
+[> Details](multiscale.md)
 
 ## Sharing & Collaboration
 
@@ -26,13 +26,13 @@ Multiscale modeling could be supported, i.e. so that at a certain "distance" awa
     - One distinction is whether or not the exported file is standalone (i.e. all top-level _and_ submodules are recursively described, even ones that have been imported from elsewhere) or not (just has UUID references to imported submodules, which are versioned).
 - Module Marketplace: Some place for people to share their modules/models and for others to use would encourage more "social" modeling (in the sense of people modeling collaboratively).
 
-[> Details]('collaboration.md')
+[> Details](collaboration.md)
 
 ## Arbitrary Frontends
 
 The core of what we provide is a backend for flexibly describing/defining and running agent-based simulations, abstracting away technical concerns. We want to be agnostic about how this backend is accessed and represented - at the very least it will be an SDK, but will also have some way of feeding into custom web interfaces (i.e. via websockets). That way people can build their own visualizations or even UIs on top of it.
 
-[> Details]('frontends.md')
+[> Details](frontends.md)
 
 ## Atomic Behaviors
 
@@ -42,7 +42,7 @@ Some behaviors may even be _metabehaviors_ which govern the addition, removal an
 
 Behaviors themselves may be composed of other sub-behaviors as well.
 
-[> Details]('behaviors.md')
+[> Details](behaviors.md)
 
 ## Examples
 
@@ -50,19 +50,19 @@ We have to have lots of accessible examples to demo what the framework is capabl
 
 This will also help guide development so we have a better sense of what we need to support.
 
-[> Details]('examples.md')
+[> Details](examples.md)
 
 ## Extensibility
 
 We are definitely not going to capture all use cases on our own, so the framework should support a great deal of extensibility at a lower level than modules and models. I don't have a good sense of what form this will take yet, but [Flask's extension system might](http://flask.pocoo.org/docs/0.11/extensiondev/) be a good template to work off.
 
-[> Details]('extensibility.md')
+[> Details](extensibility.md)
 
 ## Tracing & Logging
 
 We should have a good deal of support for logging, snapshotting, etc over relevant variables (in aggregate) of the model. We probably won't be able to have exhaustive logs if models get really big. But we should also support _tracing_ , i.e. identifying one agent and having a exceptionally detailed log of that agent's journey. Sort of like how in SimCity you can click on a resident and the camera will follow them around the city.
 
-[> Details]('tracing.md')
+[> Details](tracing.md)
 
 ## Multi-node support
 
@@ -70,13 +70,13 @@ Outcomes of a simulation can vary with the scale of the simulation (e.g. how man
 
 In any case, supporting distributed execution of simulations could go a long way here. Distributed computation is tricky but we could get a decent solution rolling that can later be improved upon.
 
-[> Details]('multinode.md')
+[> Details](multinode.md)
 
 ## Data ingestion/parameterization
 
 We should develop some tooling that makes it easier for people to parameterize their models from data. At this point it's not totally clear what that will look like. But an example is what we did with HOSNY, where we learned a Bayes' net from IPUMS data and used that to initialize agents' state variables.
 
-[> Details]('ingestion.md')
+[> Details](ingestion.md)
 
 ## Calibration/validation support
 
