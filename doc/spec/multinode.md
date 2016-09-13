@@ -1,31 +1,39 @@
-supporting distributed simulations introduces a lot of design challenges. here are some notes on those.
+# Multi-node support
 
-features:
+## Alpha
 
-- adding new nodes during simulation
-    - appropriately re-distributing to new nodes
-- taking down nodes during simulation
-    - appropriately re-distributing from old nodes
-- node fault tolerance/replication
+- [X] support running a single simulation across multiple nodes
+- [X] agents can communicate to agents on other nodes
+- [X] naive agent distribution strategies
+- [ ] support running multiple simulations across multiple nodes
+- [ ] moving agent(s) across nodes (single or in bulk) mid-simulation
+- [ ] node monitoring
+    - [ ] get number of agents, types of agents, resource usage, etc
+
+## Future
+
+- [ ] adding new nodes during simulation
+    - [ ] appropriately re-distributing to new nodes
+- [ ] taking down nodes during simulation
+    - [ ] appropriately re-distributing from old nodes
+- [ ] node fault tolerance/replication
     - (optional) snapshotting of agent states, associated with node addresses, every n steps, to redis (or some similar distributed key-value store)
-- node monitoring
-    - get number of agents, types of agents, resource usage, etc
-- moving agent(s) across nodes (single or in bulk)
-- support running a single simulation across multiple nodes or multiple simulations across multiple nodes
-- agents can communicate to agents on other nodes
-- load balancing (i.e. agent redistribution) as communication patterns change
+- [ ] more "intelligent" distribution strategies
+- [ ] load balancing (i.e. agent redistribution) as communication patterns change
 
-principles:
+## Principles
 
 - moving from single to multi-node simulations should require no changes to their code other than the changing of a configuration option
 - multi-node simulations should be robust against node failure
 - agent distribution across nodes should minimize inter-node communication
 - in general, any inter-node activity should be minimized
 
-open questions:
+## Questions
 
 - how do deal with collisions? perhaps it's enough to have, for each state variable, "add" and "subtract" operators that specify how updates are combined? need to think through this more
 - should we use a proper cluster management system, e.g. zookeeper or etcd or consul?
+
+## Notes
 
 ownership of attributes that are being updated? e.g.
 

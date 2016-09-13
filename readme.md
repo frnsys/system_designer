@@ -20,7 +20,7 @@ System Designer provides an easy way to emit arbitrary data, e.g. aggregate simu
 
 ## Design
 
-See the [`docs`](docs) directory for notes on the framework's design.
+See the [`docs`](docs) directory for notes on the framework's design and goals.
 
 ## Examples
 

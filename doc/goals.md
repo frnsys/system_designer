@@ -1,9 +1,0 @@
-- accessible
-    - easy setup
-        - for more technically-inclined folks, a self-hosted/local option that's `pip` installable
-        - for less technically-inclined folks, offer a hosted option with a web interface?
-    - "training wheels"
-        - include simple, _modifiable/forkable_ examples with detailed explanations/documentations
-        - workshops and other educational programming demoing the framework's capacities
-        - include common agent behaviors
-        - include example frontends/visualizations
