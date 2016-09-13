@@ -1,0 +1,3 @@
+- people with little or no exposure to systems thinking and modeling
+    - this includes people with no technical background!
+- people familiar with systems thinking and modeling but looking for easier tools
