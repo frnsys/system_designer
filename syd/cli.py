@@ -29,7 +29,7 @@ def front(port, working_dir, redis_host):
     templs = os.path.abspath(os.path.join(working_dir, 'templates'))
     app = front_app(static_folder=static, template_folder=templs)
     socketio = SocketIO(app, message_queue=redis_host)
-    socketio.run(app, host='0.0.0.0', port=port, debug=True)
+    socketio.run(app, host='0.0.0.0', port=port) # doesn't seem to work if debug=True
 
 
 @cli.command()

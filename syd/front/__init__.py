@@ -7,7 +7,6 @@ template_folder = os.path.join(os.getcwd(), 'templates')
 
 
 def front_app(package_name=__name__, blueprints=[], static_folder=static_folder, template_folder=template_folder, **config_overrides):
-    print(template_folder)
     app = Flask(package_name,
                 static_url_path='/static',
                 static_folder=static_folder,
