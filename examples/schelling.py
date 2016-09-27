@@ -7,14 +7,14 @@ from functools import partial
 
 
 class SchellingAgent(syd.Agent):
-    state_vars = ['type', 'position', 'satisfaction', 'threshold']
+    state_vars = ['type', 'position', 'satisfied', 'threshold']
 
     async def decide(self):
         neighbors = await self.world.neighbors(self.state.position)
         n_same = np.where(neighbors == self.state.type)[0].size
-        satisfaction = n_same/neighbors.size
-        self.submit_var_update('satisfaction', satisfaction)
-        if satisfaction < 1 - self.state.threshold:
+        satisfied = n_same/neighbors.size >= self.state.threshold
+        self.submit_var_update('satisfied', satisfied)
+        if not satisfied:
             await self.world.queue_random_move(self.state.position, self.state.type, self.addr)
 
 
@@ -53,7 +53,7 @@ class SchellingVoxelWorld(syd.world.VoxelWorld, SchellingWorld):
         return state
 
 
-def run(node, n_agents=5000, n_types=3, width=80, height=80, depth=None, n_steps=400, threshold=0.6, wraps=False):
+def run(node, n_agents=1550, n_types=2, width=40, height=40, depth=None, n_steps=400, threshold=0.4, wraps=False):
     if depth is None:
         assert n_agents < width * height
         grid = np.zeros((width, height))
@@ -81,15 +81,15 @@ def run(node, n_agents=5000, n_types=3, width=80, height=80, depth=None, n_steps
         agent, addr = sim.spawn(SchellingAgent, state={
             'type': type,
             'position': position,
-            'satisfaction': 0.,
+            'satisfied': 0.,
             'threshold': threshold
         }, world_addr=world_addr)
         syd.run(world.set_position(type, position))
 
     for report in sim.irun(n_steps, {
-        'total_satisfaction': (lambda ss: sum(s.satisfaction for s in ss if hasattr(s, 'satisfaction')), 1)
+        'total_satisfied': (lambda ss: sum(s.satisfied for s in ss if hasattr(s, 'satisfied')), 1)
     }):
-        print('mean satisfaction:', report['total_satisfaction']/n_agents)
+        print('mean satisfied:', report['total_satisfied']/n_agents)
         grid = syd.run(world.get('grid'))
         socketio.emit('grid', {'grid':grid.tolist()})
-        time.sleep(0.2)
+        time.sleep(0.1)

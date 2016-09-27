@@ -3,7 +3,6 @@ import sys
 import time
 import examples
 
-
 if __name__ == '__main__':
     choices = ['deepthought', 'schelling', 'sir', 'gameoflife']
     if len(sys.argv) < 2:
@@ -24,7 +23,6 @@ if __name__ == '__main__':
 
         s = time.time()
         getattr(examples, example).run(node)
-        # deepthought.run(node)
         print('elapsed:', time.time() - s)
     finally:
         node.shutdown()

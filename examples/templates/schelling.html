@@ -39,19 +39,19 @@
     <div class="background"></div>
     <canvas id="grid-canvas" width="400" height="400"></canvas>
     <h1>Schelling's Model of Segregation</h1>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
     <script src="https://code.createjs.com/easeljs-0.8.2.min.js"></script>
     <script>
         var socket = io("/simulation"),
             stage = new createjs.Stage("grid-canvas"),
-            w = 80,
-            h = 80,
+            w = 40,
+            h = 40,
             cell_w = 400/w,
             cell_h = 400/h,
             colors = {
                 0: "#eaeaea",
                 1: "#FF1515",
-                2: "#FF2626",
+                2: "#1515ff",
                 3: "#E23131"
             }
 
