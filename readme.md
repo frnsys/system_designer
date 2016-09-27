@@ -28,7 +28,7 @@ Some examples are implemented in the `examples` folder.
 
 To run an example:
 
-    python examples <example name>
+    python -m examples <example name>
 
 The available examples are: `schelling, sir, gameoflife`.
 
