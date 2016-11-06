@@ -75,19 +75,19 @@ class Agent(aiomas.Agent, metaclass=AgentMeta):
             self.world = await self.container.connect(self.world_addr)
 
     @aiomas.expose
-    def submit_update(self, fn):
+    def submit_update(self, fn, *args, **kwargs):
         """add an update function to the update stack;
         update functions are composed into a single function.
         note this does _not_ execute the update.
         update functions take in an agent's state and return a new state.
         """
         # can't use function composition b/c of potential recursion depth error
-        self._updates.append(fn)
+        self._updates.append(partial(fn, *args, **kwargs))
 
     @aiomas.expose
     def submit_var_update(self, var, value):
         """convenience method for updating a single state variable"""
-        self.submit_update(partial(update_var, var, value))
+        self.submit_update(update_var, var, value)
 
     def apply_updates(self):
         """apply all queued updates"""

@@ -2,7 +2,6 @@ import aiomas
 import numpy as np
 from .base import World
 from itertools import product
-from functools import partial
 
 
 class GridWorld(World):
@@ -26,16 +25,12 @@ class GridWorld(World):
         self.state.grid[x, y] = value
 
     def move_position(self, from_pos, to_pos, reset_val=0):
-        return partial(self._move_position,
-                       from_pos, to_pos, reset_val=reset_val)
-
-    def _move_position(self, from_pos, to_pos, state, reset_val=0):
         """'moves' a value from one position to another"""
         tx, ty = to_pos
         fx, fy = from_pos
-        state.grid[tx, ty] = state.grid[from_pos]
-        state.grid[fx, fy] = reset_val
-        return state
+        self.state.grid[tx, ty] = self.state.grid[from_pos]
+        self.state.grid[fx, fy] = reset_val
+        return self.state
 
     @aiomas.expose
     def neighbors(self, position):
